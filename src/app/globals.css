@@ -19,3 +19,24 @@ body {
   font-family: 'Georgia', 'Times New Roman', serif;
   min-height: 100vh;
 }
+
+/* Mobile-first tightening; restore larger spacing on >=640px */
+.mobile-container-no-overflow { overflow: hidden; }
+.mobile-tight { margin-bottom: 12px !important; }
+.mobile-paragraph { margin-bottom: 12px !important; padding: 0 !important; }
+.mobile-ptb-8 { padding-top: 8px !important; padding-bottom: 8px !important; }
+.mobile-gif { max-width: 200px !important; }
+.mobile-gap-12 { height: 12px !important; }
+.mobile-separator { margin-top: 12px !important; padding-top: 12px !important; }
+.hide-on-mobile { display: none; }
+
+@media (min-width: 640px) {
+  .mobile-container-no-overflow { overflow: visible; }
+  .mobile-tight { margin-bottom: revert !important; }
+  .mobile-paragraph { margin-bottom: revert !important; padding: revert !important; }
+  .mobile-ptb-8 { padding-top: 16px !important; padding-bottom: 16px !important; }
+  .mobile-gif { max-width: 280px !important; }
+  .mobile-gap-12 { height: 24px !important; }
+  .mobile-separator { margin-top: 24px !important; padding-top: 16px !important; }
+  .hide-on-mobile { display: block; }
+}
