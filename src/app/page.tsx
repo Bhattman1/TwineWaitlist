@@ -1,11 +1,53 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function Home() {
   const [email, setEmail] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [count, setCount] = useState<number | null>(null);
+  const [displayCount, setDisplayCount] = useState<number>(0);
+
+  // Fetch current waitlist count
+  useEffect(() => {
+    const fetchCount = async () => {
+      try {
+        const res = await fetch('/api/admin', { cache: 'no-store' });
+        const json = await res.json();
+        if (typeof json?.count === 'number') {
+          setCount(json.count);
+        }
+      } catch {
+        // ignore
+      }
+    };
+    fetchCount();
+  }, []);
+
+  // Animate number counting up to the fetched count
+  useEffect(() => {
+    if (count === null) return;
+    const durationMs = 1500;
+    let startTs: number | null = null;
+    let rafId: number;
+
+    const step = (ts: number) => {
+      if (startTs === null) startTs = ts;
+      const progress = Math.min((ts - startTs) / durationMs, 1);
+      const eased = 1 - Math.pow(1 - progress, 3); // easeOutCubic
+      const next = Math.floor(eased * count);
+      setDisplayCount(next);
+      if (progress < 1) {
+        rafId = requestAnimationFrame(step);
+      } else {
+        setDisplayCount(count);
+      }
+    };
+
+    rafId = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(rafId);
+  }, [count]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,27 +115,27 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-twine-primary flex items-center justify-center p-4 sm:p-8">
+    <div className="min-h-screen bg-twine-primary flex items-center justify-center p-4 sm:p-8" style={{ overflow: 'hidden' }}>
       <div className="max-w-4xl w-full text-center">
         {/* Main content */}
-        <div className="mb-8 sm:mb-12">
+        <div className="mb-8 sm:mb-12" style={{ marginBottom: '12px' }}>
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-twine-text mb-4 sm:mb-6 tracking-tight">
             twine.
           </h1>
-          <p className="text-lg sm:text-xl md:text-2xl text-twine-text-dark mb-8 sm:mb-12 max-w-2xl mx-auto px-4 leading-relaxed">
+          <p className="text-lg sm:text-xl md:text-2xl text-twine-text-dark mb-8 sm:mb-12 max-w-2xl mx-auto px-4 leading-relaxed" style={{ marginBottom: '12px', padding: 0 }}>
             Something amazing is coming. Be the first to know when we launch.
           </p>
-          <div style={{ paddingTop: '16px', paddingBottom: '16px' }}>
+          <div style={{ paddingTop: '8px', paddingBottom: '8px' }}>
             <img
               src="/WelcomeTwine.gif"
               alt="Welcome to Twine"
-              style={{ display: 'block', margin: '0 auto', maxWidth: '280px', width: '100%', height: 'auto' }}
+              style={{ display: 'block', margin: '0 auto', maxWidth: '200px', width: '100%', height: 'auto' }}
             />
           </div>
         </div>
 
         {/* Email form */}
-        <div className="flex flex-col items-center mb-8 sm:mb-12">
+        <div className="flex flex-col items-center mb-8 sm:mb-12" style={{ marginBottom: '12px' }}>
           <form onSubmit={handleSubmit} className="flex flex-col items-center">
             {/* Input field */}
             <div>
@@ -108,7 +150,7 @@ export default function Home() {
                 required
               />
             </div>
-            <div style={{ height: '24px' }} aria-hidden="true"></div>
+            <div style={{ height: '12px' }} aria-hidden="true"></div>
             
             {/* Submit button */}
             <div className="flex items-center justify-center gap-4" style={{ marginTop: '0px' }}>
@@ -145,14 +187,39 @@ export default function Home() {
           </form>
         </div>
 
-        {/* Additional info */}
-       
+        {/* Waitlist total (animated) */}
+        <div
+          style={{
+            marginTop: '12px',
+            paddingTop: '12px',
+            borderTop: '1px solid #FDD64E'
+          }}
+        >
+          <p
+            style={{
+              color: '#FDD64E',
+              fontSize: '16px',
+              lineHeight: 1.6,
+              margin: 0
+            }}
+          >
+            Currently{' '}
+            <span
+              style={{
+                fontWeight: 800,
+                fontSize: '28px',
+                color: '#FDD64E',
+                letterSpacing: '0.5px'
+              }}
+            >
+              {displayCount.toLocaleString()}
+            </span>{' '}
+            sign ups
+          </p>
+        </div>
 
-        {/* Decorative elements */}
-        <div className="absolute top-20 left-20 w-32 h-32 bg-white/5 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-20 right-20 w-40 h-40 bg-twine-text/3 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/3 right-1/4 w-24 h-24 bg-white/3 rounded-full blur-2xl animate-pulse delay-500"></div>
-        <div className="absolute bottom-1/3 left-1/3 w-20 h-20 bg-twine-text/4 rounded-full blur-xl animate-pulse delay-700"></div>
+        {/* Decorative elements (hidden to avoid overflow on mobile) */}
+        <div style={{ display: 'none' }}></div>
       </div>
     </div>
   );
