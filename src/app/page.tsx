@@ -83,6 +83,13 @@ export default function Home() {
           <p className="text-lg sm:text-xl md:text-2xl text-twine-text-dark mb-8 sm:mb-12 max-w-2xl mx-auto px-4 leading-relaxed">
             Something amazing is coming. Be the first to know when we launch.
           </p>
+          <div style={{ paddingTop: '16px', paddingBottom: '16px' }}>
+            <img
+              src="/WelcomeTwine.gif"
+              alt="Welcome to Twine"
+              style={{ display: 'block', margin: '0 auto', maxWidth: '280px', width: '100%', height: 'auto' }}
+            />
+          </div>
         </div>
 
         {/* Email form */}
