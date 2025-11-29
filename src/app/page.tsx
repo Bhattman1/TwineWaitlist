@@ -126,13 +126,23 @@ export default function Home() {
             Something amazing is coming. Be the first to know when we launch.
           </p>
           <div style={{ paddingTop: '16px', paddingBottom: '16px' }} className="mobile-ptb-8">
-            <img
-              src="/WelcomeTwine.gif"
-              alt="Welcome to Twine"
-              style={{ display: 'block', margin: '0 auto', maxWidth: '280px', width: '100%', height: 'auto' }}
-              className="mobile-gif"
-            />
-          </div>
+  <video
+    src="/WelcomeTwine.mov"
+    autoPlay
+    loop
+    muted
+    playsInline
+    style={{
+      display: 'block',
+      margin: '0 auto',
+      maxWidth: '280px',
+      width: '100%',
+      height: 'auto',
+    }}
+    className="mobile-gif"
+  />
+</div>
+
         </div>
 
         {/* Email form */}
