@@ -127,7 +127,7 @@ export default function Home() {
           </p>
           <div style={{ paddingTop: '16px', paddingBottom: '16px' }} className="mobile-ptb-8">
   <video
-    src="/WelcomeTwine.mov"
+    src="/WelcomeTwine.mp4"
     autoPlay
     loop
     muted
