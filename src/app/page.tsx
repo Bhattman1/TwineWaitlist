@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export default function Home() {
   const [email, setEmail] = useState('');
@@ -8,6 +8,36 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [count, setCount] = useState<number | null>(null);
   const [displayCount, setDisplayCount] = useState<number>(0);
+
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+
+  // Force autoplay on Safari / iOS
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    video.muted = true;
+    video.defaultMuted = true;
+
+    const tryPlay = () => {
+      const p = video.play();
+      if (p && typeof p.then === 'function') {
+        p.catch(() => {
+          // Safari may still block; ignore
+        });
+      }
+    };
+
+    // Try immediately
+    tryPlay();
+
+    // Try again when it can play
+    video.addEventListener('canplay', tryPlay, { once: true });
+
+    return () => {
+      video.removeEventListener('canplay', tryPlay);
+    };
+  }, []);
 
   // Fetch current waitlist count
   useEffect(() => {
@@ -52,9 +82,9 @@ export default function Home() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim()) return;
-    
+
     setIsLoading(true);
-    
+
     try {
       const response = await fetch('/api/waitlist', {
         method: 'POST',
@@ -83,16 +113,23 @@ export default function Home() {
       <div className="min-h-screen bg-twine-primary flex items-center justify-center p-4 sm:p-8">
         <div className="max-w-md w-full text-center">
           <div className="bg-twine-primary rounded-full w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center mx-auto mb-6 sm:mb-8">
-            <svg className="w-8 h-8 sm:w-10 sm:h-10 text-twine-text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg
+              className="w-8 h-8 sm:w-10 sm:h-10 text-twine-text"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-twine-text mb-4 sm:mb-6">Welcome to Twine!</h1>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-twine-text mb-4 sm:mb-6">
+            Welcome to Twine!
+          </h1>
           <p className="text-twine-text-dark text-base sm:text-lg mb-6 sm:mb-8 px-4">
             You&apos;ve successfully joined our waitlist. We&apos;ll notify you as soon as we launch!
           </p>
           <div className="flex items-center justify-center gap-4">
-            <button 
+            <button
               onClick={() => {
                 setIsSubmitted(false);
                 setEmail('');
@@ -102,7 +139,7 @@ export default function Home() {
                 color: '#761718',
                 fontFamily: 'Inter, system-ui, sans-serif',
                 width: '320px',
-                height: '64px'
+                height: '64px',
               }}
               className="inline-flex items-center justify-center w-80 px-6 py-8 font-bold rounded-full border-0 transition-all duration-300 hover:shadow-lg hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
             >
@@ -126,24 +163,28 @@ export default function Home() {
             Something amazing is coming. Be the first to know when we launch.
           </p>
           <div style={{ paddingTop: '16px', paddingBottom: '16px' }} className="mobile-ptb-8">
-  <video
-    src="/WelcomeTwine_fixed.mp4"
-    autoPlay
-    loop
-    muted
-    playsInline
-    preload="auto"
-    style={{
-      display: 'block',
-      margin: '0 auto',
-      maxWidth: '280px',
-      width: '100%',
-      height: 'auto',
-    }}
-    className="mobile-gif"
-  />
-</div>
-
+            <video
+              ref={videoRef}
+              src="/WelcomeTwine_fixed.mp4"
+              autoPlay
+              loop
+              muted
+              defaultMuted
+              playsInline
+              // @ts-expect-error – iOS Safari attribute
+              webkit-playsinline="true"
+              controls={false}
+              preload="auto"
+              style={{
+                display: 'block',
+                margin: '0 auto',
+                maxWidth: '280px',
+                width: '100%',
+                height: 'auto',
+              }}
+              className="mobile-gif"
+            />
+          </div>
         </div>
 
         {/* Email form */}
@@ -163,7 +204,7 @@ export default function Home() {
               />
             </div>
             <div style={{ height: '24px' }} className="mobile-gap-12" aria-hidden="true"></div>
-            
+
             {/* Submit button */}
             <div className="flex items-center justify-center gap-4" style={{ marginTop: '0px' }}>
               <button
@@ -174,13 +215,13 @@ export default function Home() {
                   color: '#761718',
                   fontFamily: 'Inter, system-ui, sans-serif',
                   width: '280px',
-                  height: '48px'
+                  height: '48px',
                 }}
                 className="inline-flex items-center justify-center w-80 px-6 py-8 font-bold rounded-full border-0 transition-all duration-300 hover:shadow-lg hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
                   <div className="flex items-center justify-center gap-2">
-                    <div 
+                    <div
                       className="w-4 h-4 border-2 border-t-transparent rounded-full animate-spin"
                       style={{ borderColor: '#761718 #761718 #761718 transparent' }}
                     ></div>
@@ -191,7 +232,7 @@ export default function Home() {
                 )}
               </button>
             </div>
-            
+
             {/* Subtle hint text */}
             <p className="text-center text-white/50 text-sm mt-4">
               Be the first to experience something amazing
@@ -204,7 +245,7 @@ export default function Home() {
           style={{
             marginTop: '24px',
             paddingTop: '16px',
-            borderTop: '1px solid #FDD64E'
+            borderTop: '1px solid #FDD64E',
           }}
           className="mobile-separator"
         >
@@ -213,7 +254,7 @@ export default function Home() {
               color: '#FDD64E',
               fontSize: '16px',
               lineHeight: 1.6,
-              margin: 0
+              margin: 0,
             }}
           >
             Currently{' '}
@@ -222,7 +263,7 @@ export default function Home() {
                 fontWeight: 800,
                 fontSize: '28px',
                 color: '#FDD64E',
-                letterSpacing: '0.5px'
+                letterSpacing: '0.5px',
               }}
             >
               {displayCount.toLocaleString()}
