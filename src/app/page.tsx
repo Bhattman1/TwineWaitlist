@@ -11,33 +11,53 @@ export default function Home() {
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
-  // Force autoplay on Safari / iOS
+  // Try to autoplay the hero video
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
+    // Make sure browser treats it as muted inline media
     video.muted = true;
     video.defaultMuted = true;
+    // @ts-expect-error - some engines use this
+    video.webkitMuted = true;
 
     const tryPlay = () => {
       const p = video.play();
       if (p && typeof p.then === 'function') {
         p.catch(() => {
-          // Safari may still block; ignore
+          // Autoplay may still be blocked by device/browser settings
         });
       }
     };
 
     // Try immediately
     tryPlay();
-
-    // Try again when it can play
+    // Try again when it's ready
     video.addEventListener('canplay', tryPlay, { once: true });
 
     return () => {
       video.removeEventListener('canplay', tryPlay);
     };
   }, []);
+
+  // Single-tap fallback: if autoplay got blocked, tapping the video should play it
+  const handleVideoClick = () => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    video.muted = true;
+    video.defaultMuted = true;
+    // @ts-expect-error
+    video.webkitMuted = true;
+
+    const p = video.play();
+    if (p && typeof p.then === 'function') {
+      p.catch(() => {
+        // If this fails, browser is hard-blocking playback
+      });
+    }
+  };
 
   // Fetch current waitlist count
   useEffect(() => {
@@ -68,6 +88,7 @@ export default function Home() {
       const eased = 1 - Math.pow(1 - progress, 3); // easeOutCubic
       const next = Math.floor(eased * count);
       setDisplayCount(next);
+
       if (progress < 1) {
         rafId = requestAnimationFrame(step);
       } else {
@@ -162,6 +183,7 @@ export default function Home() {
           <p className="text-lg sm:text-xl md:text-2xl text-twine-text-dark mb-8 sm:mb-12 max-w-2xl mx-auto px-4 leading-relaxed mobile-paragraph">
             Something amazing is coming. Be the first to know when we launch.
           </p>
+
           <div style={{ paddingTop: '16px', paddingBottom: '16px' }} className="mobile-ptb-8">
             <video
               ref={videoRef}
@@ -169,12 +191,11 @@ export default function Home() {
               autoPlay
               loop
               muted
-        
               playsInline
-            
               webkit-playsinline="true"
               controls={false}
               preload="auto"
+              onClick={handleVideoClick}
               style={{
                 display: 'block',
                 margin: '0 auto',
