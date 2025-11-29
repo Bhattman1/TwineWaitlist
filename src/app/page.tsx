@@ -169,9 +169,9 @@ export default function Home() {
               autoPlay
               loop
               muted
-              defaultMuted
+        
               playsInline
-              // @ts-expect-error – iOS Safari attribute
+            
               webkit-playsinline="true"
               controls={false}
               preload="auto"
