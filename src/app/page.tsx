@@ -127,11 +127,12 @@ export default function Home() {
           </p>
           <div style={{ paddingTop: '16px', paddingBottom: '16px' }} className="mobile-ptb-8">
   <video
-    src="/WelcomeTwine.mp4"
+    src="/WelcomeTwine_fixed.mp4"
     autoPlay
     loop
     muted
     playsInline
+    preload="auto"
     style={{
       display: 'block',
       margin: '0 auto',
