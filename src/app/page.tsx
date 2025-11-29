@@ -19,7 +19,7 @@ export default function Home() {
     // Make sure browser treats it as muted inline media
     video.muted = true;
     video.defaultMuted = true;
-    // @ts-expect-error - some engines use this
+    // @ts-expect-error: yes
     video.webkitMuted = true;
 
     const tryPlay = () => {
@@ -48,7 +48,7 @@ export default function Home() {
 
     video.muted = true;
     video.defaultMuted = true;
-    // @ts-expect-error
+    // @ts-expect-error: yes
     video.webkitMuted = true;
 
     const p = video.play();
